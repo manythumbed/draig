@@ -22,7 +22,7 @@ abstract class Entity<T : Event>(events: List<T>)   {
 	}
 
 	private var changeList = arrayListOf<T>()
-	val changes: List<Event>
+	val changes: List<T>
 		get() = changeList
 
 	abstract protected fun initialise()
@@ -98,7 +98,7 @@ class SimpleStore<I : Identity, T : Event>(val stream: String) : Store<I, T>   {
 	}
 }
 
-data class VersionedEntity<T: Event>(val version: Version, val entity: Entity<T>)
+data class VersionedEntity<T : Event>(val version: Version, val entity: Entity<T>)
 
 abstract class Repository<I : Identity, T: Event, E : Entity<T>>(private val store: Store<I, T>)	{
 	fun find(id: I): VersionedEntity<T>?	{
@@ -107,6 +107,10 @@ abstract class Repository<I : Identity, T: Event, E : Entity<T>>(private val sto
 			return VersionedEntity(stream.version, build(stream.events))
 		}
 		return null
+	}
+
+	fun store(id: I, version: Version, entity: E)	{
+		store.store(id, version, entity.changes)
 	}
 
 	abstract fun build(events: List<T>): E
