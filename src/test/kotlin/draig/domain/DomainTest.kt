@@ -47,6 +47,12 @@ class TestEntity(events: List<TestEvent>) : Entity<TestEvent>(events)    {
 	}
 }
 
+class TestRepository(store: Store<TestIdentity, TestEvent>) : Repository<TestIdentity, TestEvent, TestEntity>(store) {
+	override fun build(events: List<TestEvent>): TestEntity {
+		return TestEntity(events)
+	}
+}
+
 class EntityTest() : TestCase()  {
 	val gson: Gson = gson()
 
@@ -90,6 +96,7 @@ class EntityTest() : TestCase()  {
 		})
 	}
 }
+
 fun gson(): Gson {
 	val builder = GsonBuilder()
 	builder.setExclusionStrategies(ChangeListExclusionStrategy())
@@ -101,6 +108,7 @@ fun gson(): Gson {
 
 	return Gson()
 }
+
 class SimpleStoreTest() : TestCase()    {
 
 	fun testEmptyStreamForMissingEntity() {
