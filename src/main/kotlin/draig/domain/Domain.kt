@@ -1,35 +1,52 @@
 package draig.domain
 
 import java.util.HashMap
+import com.google.gson.ExclusionStrategy
+import com.google.gson.FieldAttributes
 
 abstract class Event    {
-    open fun conflict(event: Event): Boolean {
-        return true
-    }
+	open fun conflict(event: Event): Boolean {
+		return true
+	}
 }
 
 abstract class Entity<T : Event>(events: List<T>)   {
-    {
-        initialise()
-        events.forEach { handle(it) }
-    }
+	{
+		initialise()
+		events.forEach { handle(it) }
+	}
 
-    private val changeList = arrayListOf<T>()
-    val changes: List<Event>
-        get() = changeList
+	fun update(events: List<T>)	{
+		changeList = arrayListOf<T>()
+		events.forEach { handle(it) }
+	}
 
-    abstract protected fun initialise()
+	private var changeList = arrayListOf<T>()
+	val changes: List<Event>
+		get() = changeList
 
-    abstract protected fun handle(event: T)
+	abstract protected fun initialise()
 
-    protected fun apply(event: T) {
-        handle(event)
-        change(event)
-    }
+	abstract protected fun handle(event: T)
 
-    private fun change(event: T) {
-        changeList.add(event)
-    }
+	protected fun apply(event: T) {
+		handle(event)
+		change(event)
+	}
+
+	private fun change(event: T) {
+		changeList.add(event)
+	}
+}
+
+class ChangeListExclusionStrategy(): ExclusionStrategy {
+	override fun shouldSkipField(p0: FieldAttributes?): Boolean {
+		if(p0 != null)	{
+			return p0.getName().equals("changeList")
+		}
+		return false
+	}
+	override fun shouldSkipClass(p0: Class<out Any?>?): Boolean = false
 }
 
 abstract class Identity()
@@ -39,46 +56,46 @@ data class StorageError(val event: Event)
 data class StorageResult(val success: Boolean, val version: Version, val errors: List<StorageError>)
 
 trait Store<I : Identity, T : Event> {
-    fun stream(id: I): Stream<T>
-    fun streamFrom(id: I, version: Version): Stream<T>
-    fun store(id: I, version: Version, events: List<T>): StorageResult
+	fun stream(id: I): Stream<T>
+	fun streamFrom(id: I, version: Version): Stream<T>
+	fun store(id: I, version: Version, events: List<T>): StorageResult
 }
 
 class SimpleStore<I : Identity, T : Event>(val stream: String) : Store<I, T>   {
-    val backingStore: HashMap<I, List<T>> = hashMapOf()
+	val backingStore: HashMap<I, List<T>> = hashMapOf()
 
-    override fun stream(id: I): Stream<T> {
-        val events = backingStore.get(id)
-        if (events != null) {
-            return Stream(Version(events.size()), events)
-        }
-        return Stream(Version(0), null)
-    }
+	override fun stream(id: I): Stream<T> {
+		val events = backingStore.get(id)
+		if (events != null) {
+			return Stream(Version(events.size()), events)
+		}
+		return Stream(Version(0), null)
+	}
 
-    override fun streamFrom(id: I, version: Version): Stream<T> {
-        val events = backingStore.get(id)
-        if (events != null) {
-            if (events.size() > version.version) return Stream(Version(events.size()), events.subList(version.version, events.size()))
-        }
-        return Stream(Version(0), null)
-    }
+	override fun streamFrom(id: I, version: Version): Stream<T> {
+		val events = backingStore.get(id)
+		if (events != null) {
+			if (events.size() > version.version) return Stream(Version(events.size()), events.subList(version.version, events.size()))
+		}
+		return Stream(Version(0), null)
+	}
 
-    override fun store(id: I, version: Version, events: List<T>): StorageResult {
-        if (backingStore.containsKey(id)) {
-            val list = backingStore.get(id)
-            if (list != null) {
-                if(version.version == list.size())  {
-                    backingStore.put(id, list.plus(events))
-                    return StorageResult(true, Version(list.size() + events.size()), listOf())
-                }
+	override fun store(id: I, version: Version, events: List<T>): StorageResult {
+		if (backingStore.containsKey(id)) {
+			val list = backingStore.get(id)
+			if (list != null) {
+				if (version.version == list.size()) {
+					backingStore.put(id, list.plus(events))
+					return StorageResult(true, Version(list.size() + events.size()), listOf())
+				}
 
-                return StorageResult(false, Version(list.size()), events.map { StorageError(it) })
-            }
-        }
-        backingStore.put(id, events)
+				return StorageResult(false, Version(list.size()), events.map { StorageError(it) })
+			}
+		}
+		backingStore.put(id, events)
 
-        return StorageResult(true, Version(events.size()), listOf())
-    }
+		return StorageResult(true, Version(events.size()), listOf())
+	}
 }
 
 
