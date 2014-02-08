@@ -12,7 +12,7 @@ import com.google.gson.GsonBuilder
 abstract class TestEvent() : Event()
 
 data class Message(val message: String) : TestEvent()
-data class Error(val message: String) : TestEvent()
+data class Warning(val message: String) : TestEvent()
 
 data class TestIdentity(val identity: Long) : Identity()
 
@@ -32,7 +32,7 @@ class TestEntity(events: List<TestEvent>) : Entity<TestEvent>(events)    {
 	override fun handle(event: TestEvent) {
 		when (event) {
 			is Message -> messageList.add(event.message)
-			is Error -> messageList.add("*" + event.message)
+			is Warning -> messageList.add("*" + event.message)
 		}
 	}
 
@@ -44,7 +44,7 @@ class TestEntity(events: List<TestEvent>) : Entity<TestEvent>(events)    {
 
 	fun storeError(error: String) {
 		if (error.isNotEmpty()) {
-			apply(Error(error))
+			apply(Warning(error))
 		}
 	}
 }
@@ -53,7 +53,7 @@ class EntityTest() : TestCase()  {
 	val gson: Gson = gson()
 
 	fun testEntity() {
-		val t = TestEntity(listOf(Message("m1"), Error("e1")))
+		val t = TestEntity(listOf(Message("m1"), Warning("e1")))
 
 		t.storeMessage("m1")
 		t.storeError("e1")
@@ -66,7 +66,7 @@ class EntityTest() : TestCase()  {
 	}
 
 	fun testSerialisation() {
-		val t = TestEntity(listOf(Message("m1"), Error("e1")))
+		val t = TestEntity(listOf(Message("m1"), Warning("e1")))
 		t.storeMessage("m1")
 		t.storeError("e1")
 
@@ -83,7 +83,7 @@ class EntityTest() : TestCase()  {
 
 	fun testUpdateSnapshot() {
 		assertNotNull(gson.fromJson("""{"messageList":["m1","*e1"]}""", javaClass<TestEntity>())) { t2 ->
-			t2.update(listOf(Error("e1")))
+			t2.update(listOf(Warning("e1")))
 			assertEquals(3, t2.count)
 			assertEquals(0, t2.changes.size)
 

@@ -4,7 +4,10 @@ import draig.core.event.Event
 import draig.core.Identity
 import draig.core.entity.Entity
 
-data class Version(val version: Int)
+data class Version(val version: Int)	{
+	fun later(other: Version): Boolean = this.version > other.version
+}
+
 data class Stream<T>(val version: Version, val events: List<T>?)
 data class StorageError(val event: Event)
 data class StorageResult(val success: Boolean, val version: Version, val errors: List<StorageError>)
