@@ -7,6 +7,7 @@ import draig.core.entity.Message
 import draig.core.entity.Error
 import draig.core.entity.TestEvent
 import draig.core.store.Version
+import kotlin.test.assertNotNull
 
 class SimpleStoreTest() : TestCase()    {
 
@@ -26,6 +27,21 @@ class SimpleStoreTest() : TestCase()    {
 			assertEquals(true, result.success)
 			assertEquals(Version(2), result.version)
 			assertEquals(0, result.errors.size())
+		}
+	}
+
+	fun testShouldRetrieveStoredItem() {
+		withStore { store ->
+			val id = TestIdentity(12)
+			store.store(id, Version(0), listOf(Message("m"), Error("e")))
+
+			val stream = store.stream(id)
+			assertEquals(Version(2), stream.version)
+			assertNotNull(stream.events)	{ events ->
+				assertEquals(2, events.size)
+				assertEquals(Message("m"), events.get(0))
+				assertEquals(Error("e"), events.get(1))
+			}
 		}
 	}
 

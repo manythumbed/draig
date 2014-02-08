@@ -73,16 +73,16 @@ class EntityTest() : TestCase()  {
 		val json = gson.toJson(t)
 		assertEquals("""{"messageList":["m1","*e1"]}""", json)
 
-		assertNotNull(gson.fromJson(json, javaClass<TestEntity>()), { t2 ->
+		assertNotNull(gson.fromJson(json, javaClass<TestEntity>())) { t2 ->
 			assertEquals(2, t2.count)
 			assertEquals("m1", t2.messages.get(0))
 			assertEquals("*e1", t2.messages.get(1))
 			assertNull(t2.changes)
-		})
+		}
 	}
 
 	fun testUpdateSnapshot() {
-		assertNotNull(gson.fromJson("""{"messageList":["m1","*e1"]}""", javaClass<TestEntity>()), { t2 ->
+		assertNotNull(gson.fromJson("""{"messageList":["m1","*e1"]}""", javaClass<TestEntity>())) { t2 ->
 			t2.update(listOf(Error("e1")))
 			assertEquals(3, t2.count)
 			assertEquals(0, t2.changes.size)
@@ -92,7 +92,7 @@ class EntityTest() : TestCase()  {
 
 			assertEquals(5, t2.count)
 			assertEquals(2, t2.changes.size)
-		})
+		}
 	}
 }
 
