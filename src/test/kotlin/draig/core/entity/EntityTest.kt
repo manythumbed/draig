@@ -16,13 +16,21 @@ data class Warning(val message: String) : TestEvent()
 
 data class TestIdentity(val identity: Long) : Identity()
 
+// Should this really fold over the entity state using a function (s:State, e: Event) -> s:State
+// then state can be declared as var state: S = events.fold(initialState) { s,e -> handle(s, e)
+// ?????????
+// If this worked it would also seperate state from behaviour!!
 class TestEntity(events: List<TestEvent>) : Entity<TestEvent>(events)    {
+	{
+		events.forEach { handle(it) }
+	}
+
+	private var messageList = arrayListOf<String>()
 
 	override fun initialise() {
 		this.messageList = arrayListOf<String>()
 	}
 
-	private var messageList = arrayListOf<String>()
 	val messages: List<String>
 		get() = messageList
 
@@ -55,12 +63,16 @@ class EntityTest() : TestCase()  {
 	fun testEntity() {
 		val t = TestEntity(listOf(Message("m1"), Warning("e1")))
 
+		assertEquals(2, t.count)
+
 		t.storeMessage("m1")
 		t.storeError("e1")
 
-		assertEquals(2, t.count)
+		assertEquals(4, t.count)
 		assertEquals("m1", t.messages.get(0))
 		assertEquals("*e1", t.messages.get(1))
+		assertEquals("m1", t.messages.get(2))
+		assertEquals("*e1", t.messages.get(3))
 
 		assertEquals(2, t.changes.size)
 	}

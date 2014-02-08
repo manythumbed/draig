@@ -4,9 +4,9 @@ import draig.core.entity.Entity
 import draig.core.event.Event
 import draig.core.Identity
 
-data class VersionedEntity<T : Event>(val version: Version, val entity: Entity<T>)
+data class VersionedEntity<T : Entity<*>>(val version: Version, val entity: T)
 
-abstract class Repository<I : Identity, T : Event, E : Entity<T>>(private val store: Store<I, T>)  {
+abstract class Repository<I : Identity, E : Event, T : Entity<E>>(private val store: Store<I, E>)  {
 	fun find(id: I): VersionedEntity<T>? {
 		val stream = store.stream(id)
 		if (stream.events != null) {
@@ -15,9 +15,9 @@ abstract class Repository<I : Identity, T : Event, E : Entity<T>>(private val st
 		return null
 	}
 
-	fun store(id: I, version: Version, entity: E): StorageResult {
+	fun store(id: I, version: Version, entity: T): StorageResult {
 		return store.store(id, version, entity.changes)
 	}
 
-	abstract fun build(events: List<T>): E
+	abstract fun build(events: List<E>): T
 }

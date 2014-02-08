@@ -6,10 +6,11 @@ import draig.core.store.JsonSnapshotStore
 import draig.core.store.Version
 import draig.core.store.VersionedEntity
 import java.util.HashMap
+import draig.core.entity.Entity
 
 data class SnapshotKey<I : Identity>(val id: I, val version: Version)
 
-abstract class SimpleSnapshotStore<I : Identity, T : Event>() : JsonSnapshotStore<I, T>() {
+abstract class SimpleSnapshotStore<I : Identity, T : Entity<E>, E:  Event>() : JsonSnapshotStore<I, T, E>() {
 	private val latest = HashMap<I, Version>()
 	private val snapshots = HashMap<SnapshotKey<I>, String>()
 

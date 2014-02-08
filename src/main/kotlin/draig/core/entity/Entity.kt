@@ -5,10 +5,10 @@ import com.google.gson.FieldAttributes
 import draig.core.event.Event
 
 abstract class Entity<T : Event>(events: List<T>)   {
-	{
-		initialise()
-		events.forEach { handle(it) }
-	}
+//	{
+//		initialise()
+//		events.forEach { handle(it) }
+//	}
 
 	fun update(events: List<T>) {
 		changeList = arrayListOf<T>()

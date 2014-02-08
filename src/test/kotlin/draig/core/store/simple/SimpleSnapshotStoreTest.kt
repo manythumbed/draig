@@ -18,15 +18,15 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import draig.core.entity.ChangeListExclusionStrategy
 
-class TestSnapshotStore() : SimpleSnapshotStore<TestIdentity, TestEvent>() {
+class TestSnapshotStore() : SimpleSnapshotStore<TestIdentity, TestEntity, TestEvent>() {
 
 	private val gson = gson()
 
-	override fun fromJson(json: String): Entity<TestEvent>? {
+	override fun fromJson(json: String): TestEntity? {
 		return gson.fromJson(json, javaClass<TestEntity>())
 	}
 
-	override fun toJson(entity: Entity<TestEvent>): String? {
+	override fun toJson(entity: TestEntity): String? {
 		return gson.toJson(entity)
 	}
 
@@ -52,22 +52,25 @@ class SimpleSnapshotStoreTest() : TestCase()  {
 
 	fun testSaveSnapshot() {
 		withStore { s ->
-			assertTrue(s.save(TestIdentity(1), VersionedEntity(Version(1), TestEntity(listOf(Message("m"))))))
+			VersionedEntity<TestEntity>(Version(1), TestEntity(listOf(Message("m"))))
+			assertTrue(s.save(TestIdentity(1), VersionedEntity<TestEntity>(Version(1), TestEntity(listOf(Message("m"))))))
 		}
 	}
 
 	fun testFetchLatestSnapshot() {
 		withStore { s ->
 			val id = TestIdentity(1)
-			s.save(id, VersionedEntity(Version(1), TestEntity(listOf(Message("m"), Warning("e")))))
+			val entity = TestEntity(listOf(Message("m"), Warning("e")))
+			s.save(id, VersionedEntity(Version(1), entity))
 
 			assertNotNull(s.fetch(id)) { e ->
 				assertEquals(Version(1), e.version)
+				assertEquals(2, e.entity.count)
 			}
 		}
 	}
 
-	fun withStore(t: (SnapshotStore<TestIdentity, TestEvent>) -> Unit) {
+	fun withStore(t: (SnapshotStore<TestIdentity, TestEntity, TestEvent>) -> Unit) {
 		t(TestSnapshotStore())
 	}
 }
