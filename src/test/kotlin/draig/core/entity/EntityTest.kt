@@ -1,12 +1,13 @@
-package draig.domain
+package draig.core.entity
 
+import draig.core.event.Event
+import draig.core.Identity
 import junit.framework.TestCase
-import kotlin.test.assertEquals
 import com.google.gson.Gson
-import com.google.gson.GsonBuilder
+import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
-import draig.domain.simple.SimpleStore
+import com.google.gson.GsonBuilder
 
 abstract class TestEvent() : Event()
 
@@ -48,12 +49,6 @@ class TestEntity(events: List<TestEvent>) : Entity<TestEvent>(events)    {
 	}
 }
 
-class TestRepository(store: Store<TestIdentity, TestEvent>) : Repository<TestIdentity, TestEvent, TestEntity>(store) {
-	override fun build(events: List<TestEvent>): TestEntity {
-		return TestEntity(events)
-	}
-}
-
 class EntityTest() : TestCase()  {
 	val gson: Gson = gson()
 
@@ -78,22 +73,21 @@ class EntityTest() : TestCase()  {
 		val json = gson.toJson(t)
 		assertEquals("""{"messageList":["m1","*e1"]}""", json)
 
-		val t2 = gson.fromJson(json, javaClass<TestEntity>())
-		assertNotNull(t2, { t ->
-			assertEquals(2, t.count)
-			assertEquals("m1", t.messages.get(0))
-			assertEquals("*e1", t.messages.get(1))
-			assertNull(t.changes)
+		assertNotNull(gson.fromJson(json, javaClass<TestEntity>()), { t2 ->
+			assertEquals(2, t2.count)
+			assertEquals("m1", t2.messages.get(0))
+			assertEquals("*e1", t2.messages.get(1))
+			assertNull(t2.changes)
 
-			t.update(listOf(Error("e1")))
-			assertEquals(3, t.count)
-			assertEquals(0, t.changes.size)
+			t2.update(listOf(Error("e1")))
+			assertEquals(3, t2.count)
+			assertEquals(0, t2.changes.size)
 
-			t.storeError("e1")
-			t.storeError("e1")
+			t2.storeError("e1")
+			t2.storeError("e1")
 
-			assertEquals(5, t.count)
-			assertEquals(2, t.changes.size)
+			assertEquals(5, t2.count)
+			assertEquals(2, t2.changes.size)
 		})
 	}
 }

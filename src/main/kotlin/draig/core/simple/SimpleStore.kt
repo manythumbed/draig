@@ -1,13 +1,13 @@
-package draig.domain.simple
+package draig.core.simple
 
-import draig.domain.Identity
-import draig.domain.Event
+import draig.core.Identity
 import java.util.HashMap
-import draig.domain.Stream
-import draig.domain.Version
-import draig.domain.StorageResult
-import draig.domain.Store
-import draig.domain.StorageError
+import draig.core.event.Event
+import draig.core.store.Stream
+import draig.core.store.Store
+import draig.core.store.Version
+import draig.core.store.StorageResult
+import draig.core.store.StorageError
 
 class SimpleStore<I : Identity, T : Event>(val stream: String) : Store<I, T>   {
 	val backingStore: HashMap<I, List<T>> = hashMapOf()

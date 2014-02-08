@@ -1,12 +1,12 @@
-package draig.domain.simple
+package draig.core.simple
 
 import junit.framework.TestCase
-import draig.domain.TestIdentity
 import kotlin.test.assertEquals
-import draig.domain.Version
-import draig.domain.Message
-import draig.domain.Error
-import draig.domain.TestEvent
+import draig.core.entity.TestIdentity
+import draig.core.entity.Message
+import draig.core.entity.Error
+import draig.core.entity.TestEvent
+import draig.core.store.Version
 
 class SimpleStoreTest() : TestCase()    {
 
