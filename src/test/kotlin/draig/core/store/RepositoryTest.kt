@@ -7,7 +7,7 @@ import java.util.ArrayList
 
 data class TestIdentity(val identity:Int): Identity()
 
-class TestRepository(store: Store<TestIdentity, TestEvent>) : Repository<TestIdentity, TestEvent, TestEntity>(store) {
+class TestRepository(store: EventStore<TestIdentity, TestEvent>) : Repository<TestIdentity, TestEvent, TestEntity>(store) {
 	override fun build(events: List<TestEvent>): TestEntity {
 		return TestEntity(events)
 	}

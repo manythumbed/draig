@@ -1,12 +1,12 @@
 package draig.core.store.simple
 
+import java.util.HashMap
 import draig.core.Identity
+import draig.core.Version
+import draig.core.Versioned
+import draig.core.entity.Entity
 import draig.core.event.Event
 import draig.core.store.JsonSnapshotStore
-import draig.core.store.Version
-import draig.core.store.Versioned
-import java.util.HashMap
-import draig.core.entity.Entity
 
 data class SnapshotKey<I : Identity>(val id: I, val version: Version)
 

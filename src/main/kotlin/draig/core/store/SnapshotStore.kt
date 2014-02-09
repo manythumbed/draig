@@ -1,8 +1,10 @@
 package draig.core.store
 
+import draig.core.Identity
+import draig.core.Version
+import draig.core.Versioned
 import draig.core.entity.Entity
 import draig.core.event.Event
-import draig.core.Identity
 
 abstract class SnapshotStore<I: Identity, T>()	{
 	abstract fun fetch(id: I): Versioned<T>?

@@ -1,4 +1,4 @@
-package draig.core.store
+package draig.core
 
 import junit.framework.TestCase
 import kotlin.test.assertFalse

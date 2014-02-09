@@ -1,15 +1,15 @@
 package draig.core.store.simple
 
-import draig.core.Identity
 import java.util.HashMap
+import draig.core.Identity
+import draig.core.Version
 import draig.core.event.Event
 import draig.core.store.Stream
-import draig.core.store.Store
-import draig.core.store.Version
+import draig.core.store.EventStore
 import draig.core.store.StorageResult
 import draig.core.store.StorageError
 
-class SimpleStore<I : Identity, T : Event>(val stream: String) : Store<I, T>   {
+class SimpleEventStore<I : Identity, T : Event>(val stream: String) : EventStore<I, T>   {
 	val backingStore: HashMap<I, List<T>> = hashMapOf()
 
 	override fun stream(id: I): Stream<T> {

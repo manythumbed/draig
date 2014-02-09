@@ -2,15 +2,15 @@ package draig.core.store.simple
 
 import junit.framework.TestCase
 import kotlin.test.assertEquals
-import draig.core.entity.TestEvent
-import draig.core.store.Version
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
-import draig.core.store.TestIdentity
+import draig.core.Version
 import draig.core.entity.Itchy
 import draig.core.entity.Scratchy
+import draig.core.entity.TestEvent
+import draig.core.store.TestIdentity
 
-class SimpleStoreTest() : TestCase()    {
+class SimpleEventStoreTest() : TestCase()    {
 
 	fun testEmptyStreamForMissingEntity() {
 		withStore { store ->
@@ -68,8 +68,8 @@ class SimpleStoreTest() : TestCase()    {
 		}
 	}
 
-	fun withStore(test: (SimpleStore<TestIdentity, TestEvent>) -> Unit) {
-		val s = SimpleStore<TestIdentity, TestEvent>("test")
+	fun withStore(test: (SimpleEventStore<TestIdentity, TestEvent>) -> Unit) {
+		val s = SimpleEventStore<TestIdentity, TestEvent>("test")
 		test(s)
 	}
 }

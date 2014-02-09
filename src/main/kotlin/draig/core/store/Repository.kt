@@ -1,12 +1,12 @@
 package draig.core.store
 
+import draig.core.Identity
+import draig.core.Version
+import draig.core.Versioned
 import draig.core.entity.Entity
 import draig.core.event.Event
-import draig.core.Identity
 
-data class Versioned<T>(val version: Version, val entity: T)
-
-abstract class Repository<I : Identity, E : Event, T>(private val store: Store<I, E>)  {
+abstract class Repository<I : Identity, E : Event, T>(private val store: EventStore<I, E>)  {
 	fun find(id: I): Versioned<T>? {
 		val stream = store.stream(id)
 		if (stream.contents != null) {

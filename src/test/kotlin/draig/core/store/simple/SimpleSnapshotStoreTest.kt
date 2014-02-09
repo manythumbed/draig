@@ -1,21 +1,21 @@
 package draig.core.store.simple
 
 import junit.framework.TestCase
-import draig.core.entity.TestEvent
-import draig.core.entity.Entity
-import draig.core.store.SnapshotStore
-import kotlin.test.assertNull
-import kotlin.test.assertTrue
-import draig.core.store.Versioned
-import draig.core.store.Version
-import draig.core.entity.TestEntity
-import kotlin.test.assertNotNull
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import draig.core.entity.ChangeListExclusionStrategy
+import draig.core.Version
+import draig.core.Versioned
 import draig.core.entity.Itchy
+import draig.core.entity.Entity
 import draig.core.entity.Scratchy
+import draig.core.entity.TestEntity
+import draig.core.entity.TestEvent
+import draig.core.entity.ChangeListExclusionStrategy
+import draig.core.store.SnapshotStore
 import draig.core.store.TestIdentity
 
 class TestSnapshotStore() : SimpleSnapshotStore<TestIdentity, TestEntity>() {
