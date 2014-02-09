@@ -16,3 +16,4 @@ trait EventStore<I : Identity, E : Event> {
 	fun streamFrom(id: I, version: Version): Stream<E>
 	fun store(id: I, version: Version, events: List<E>): StorageResult
 }
+

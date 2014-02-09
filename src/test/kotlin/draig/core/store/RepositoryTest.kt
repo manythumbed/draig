@@ -1,18 +1,18 @@
 package draig.core.store
 
-import draig.core.entity.TestEntity
-import draig.core.entity.TestEvent
-import draig.core.Identity
 import junit.framework.TestCase
-import draig.core.store.simple.SimpleEventStore
+import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import draig.core.Identity
 import draig.core.Version
 import draig.core.entity.Itchy
-import kotlin.test.assertEquals
+import draig.core.entity.TestEntity
+import draig.core.entity.TestEvent
+import draig.core.store.simple.SimpleEventStore
 
 data class TestIdentity(val identity: Int) : Identity()
 
-class TestRepository(store: EventStore<TestIdentity, TestEvent>) : Repository<TestIdentity, TestEvent, TestEntity>(store) {
+class TestRepository(store: EventStore<TestIdentity, TestEvent>) : SimpleRepository<TestIdentity, TestEvent, TestEntity>(store) {
 	override fun build(events: List<TestEvent>): TestEntity {
 		return TestEntity(events)
 	}
@@ -39,7 +39,7 @@ class RepositoryTest() : TestCase()  {
 		}
 	}
 
-	private fun withRepository(t: (Repository<TestIdentity, TestEvent, TestEntity>) -> Unit) {
+	private fun withRepository(t: (SimpleRepository<TestIdentity, TestEvent, TestEntity>) -> Unit) {
 		t(TestRepository(SimpleEventStore("test")))
 	}
 }

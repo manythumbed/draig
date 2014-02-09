@@ -5,8 +5,13 @@ import draig.core.Version
 import draig.core.Versioned
 import draig.core.event.Event
 
-abstract class Repository<I : Identity, E : Event, T>(private val store: EventStore<I, E>)  {
-	fun find(id: I): Versioned<T>? {
+trait Repository<I : Identity, T>  {
+	fun find(id: I): Versioned<T>?
+	fun store(id: I, version: Version, enity: T): StorageResult
+}
+
+abstract class SimpleRepository<I : Identity, E : Event, T>(private val store: EventStore<I, E>) : Repository<I, T>  {
+	override fun find(id: I): Versioned<T>? {
 		val stream = store.stream(id)
 		if (stream.contents != null) {
 			return Versioned(stream.version, build(stream.contents))
@@ -14,7 +19,7 @@ abstract class Repository<I : Identity, E : Event, T>(private val store: EventSt
 		return null
 	}
 
-	fun store(id: I, version: Version, entity: T): StorageResult {
+	override fun store(id: I, version: Version, entity: T): StorageResult {
 		return store.store(id, version, extract(entity))
 	}
 
