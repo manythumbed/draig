@@ -33,12 +33,12 @@ class SimpleEventStore<I : Identity, T : Event>(val stream: String) : EventStore
 			val stored = backingStore.get(id)
 			if (stored != null) {
 				if (events.isEmpty()) {
-					return StorageResult(false, Version(stored.size()), listOf())
+					return StorageResult(false, Version(stored.size()))
 				}
 
 				if (version.version == stored.size()) {
 					backingStore.put(id, stored.plus(events))
-					return StorageResult(true, Version(stored.size() + events.size()), listOf())
+					return StorageResult(true, Version(stored.size() + events.size()))
 				}
 
 				return StorageResult(false, Version(stored.size()), events.map { StorageError(it) })
@@ -46,7 +46,7 @@ class SimpleEventStore<I : Identity, T : Event>(val stream: String) : EventStore
 		}
 
 		if (events.isEmpty()) {
-			return StorageResult(false, Version(0), listOf())
+			return StorageResult(false, Version(0))
 		}
 
 		backingStore.put(id, events)

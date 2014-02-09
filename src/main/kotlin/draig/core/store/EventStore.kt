@@ -6,8 +6,10 @@ import draig.core.entity.Entity
 import draig.core.event.Event
 
 data class Stream<T>(val version: Version, val contents: List<T>?)
+
 data class StorageError(val event: Event)
-data class StorageResult(val success: Boolean, val version: Version, val errors: List<StorageError>)
+
+data class StorageResult(val success: Boolean, val version: Version, val errors: List<StorageError> = listOf())
 
 trait EventStore<I : Identity, E : Event> {
 	fun stream(id: I): Stream<E>
