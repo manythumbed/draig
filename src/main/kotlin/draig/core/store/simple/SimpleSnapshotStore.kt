@@ -36,6 +36,7 @@ abstract class SimpleSnapshotStore<I: Identity, T>(): JsonSnapshotStore<I, T>()	
 
 	override fun save(id: I, entity: Versioned<T>): Boolean {
 		val json = toJson(entity.entity)
+		println("JSON IS " + json)
 		if (json != null) {
 			snapshots.put(SnapshotKey(id, entity.version), json)
 			val latestVersion = latest(id)

@@ -1,4 +1,4 @@
-package draig.core.simple
+package draig.core.store.simple
 
 import draig.core.Identity
 import java.util.HashMap
