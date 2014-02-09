@@ -3,7 +3,6 @@ package draig.core.store
 import draig.core.Identity
 import draig.core.Version
 import draig.core.Versioned
-import draig.core.entity.Entity
 import draig.core.event.Event
 
 abstract class Repository<I : Identity, E : Event, T>(private val store: EventStore<I, E>)  {

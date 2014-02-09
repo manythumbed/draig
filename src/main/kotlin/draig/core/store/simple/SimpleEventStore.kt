@@ -30,16 +30,25 @@ class SimpleEventStore<I : Identity, T : Event>(val stream: String) : EventStore
 
 	override fun store(id: I, version: Version, events: List<T>): StorageResult {
 		if (backingStore.containsKey(id)) {
-			val list = backingStore.get(id)
-			if (list != null) {
-				if (version.version == list.size()) {
-					backingStore.put(id, list.plus(events))
-					return StorageResult(true, Version(list.size() + events.size()), listOf())
+			val stored = backingStore.get(id)
+			if (stored != null) {
+				if (events.isEmpty()) {
+					return StorageResult(false, Version(stored.size()), listOf())
 				}
 
-				return StorageResult(false, Version(list.size()), events.map { StorageError(it) })
+				if (version.version == stored.size()) {
+					backingStore.put(id, stored.plus(events))
+					return StorageResult(true, Version(stored.size() + events.size()), listOf())
+				}
+
+				return StorageResult(false, Version(stored.size()), events.map { StorageError(it) })
 			}
 		}
+
+		if (events.isEmpty()) {
+			return StorageResult(false, Version(0), listOf())
+		}
+
 		backingStore.put(id, events)
 
 		return StorageResult(true, Version(events.size()), listOf())
