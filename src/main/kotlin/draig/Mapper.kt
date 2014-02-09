@@ -20,13 +20,13 @@ data class Mapping
 
 data class Risk
 
-fun forward(values: CompositeValue, mapping: Mapping): Risk {
-	return Risk()
-}
-
-fun backward(risk: Risk, mapping: Mapping): CompositeValue {
-	return CompositeValue(setOf())
-}
+//fun forward(values: CompositeValue, mapping: Mapping): Risk {
+//	return Risk()
+//}
+//
+//fun backward(risk: Risk, mapping: Mapping): CompositeValue {
+//	return CompositeValue(setOf())
+//}
 
 trait Mapper{
 	fun forward(values: CompositeValue): CompositeFact

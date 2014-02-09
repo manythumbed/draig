@@ -2,23 +2,23 @@ package draig.core.store.simple
 
 import junit.framework.TestCase
 import draig.core.entity.TestEvent
-import draig.core.entity.TestIdentity
 import draig.core.entity.Entity
 import draig.core.store.SnapshotStore
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
-import draig.core.store.VersionedEntity
+import draig.core.store.Versioned
 import draig.core.store.Version
 import draig.core.entity.TestEntity
-import draig.core.entity.Message
-import draig.core.entity.Warning
 import kotlin.test.assertNotNull
 import kotlin.test.assertEquals
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import draig.core.entity.ChangeListExclusionStrategy
+import draig.core.entity.Itchy
+import draig.core.entity.Scratchy
+import draig.core.store.TestIdentity
 
-class TestSnapshotStore() : SimpleSnapshotStore<TestIdentity, TestEntity, TestEvent>() {
+class TestSnapshotStore() : SimpleSnapshotStore<TestIdentity, TestEntity>() {
 
 	private val gson = gson()
 
@@ -52,16 +52,16 @@ class SimpleSnapshotStoreTest() : TestCase()  {
 
 	fun testSaveSnapshot() {
 		withStore { s ->
-			VersionedEntity<TestEntity>(Version(1), TestEntity(listOf(Message("m"))))
-			assertTrue(s.save(TestIdentity(1), VersionedEntity<TestEntity>(Version(1), TestEntity(listOf(Message("m"))))))
+			Versioned<TestEntity>(Version(1), TestEntity(listOf(Itchy("m"))))
+			assertTrue(s.save(TestIdentity(1), Versioned<TestEntity>(Version(1), TestEntity(listOf(Itchy("m"))))))
 		}
 	}
 
 	fun testFetchLatestSnapshot() {
 		withStore { s ->
 			val id = TestIdentity(1)
-			val entity = TestEntity(listOf(Message("m"), Warning("e")))
-			s.save(id, VersionedEntity(Version(1), entity))
+			val entity = TestEntity(listOf(Itchy("m"), Scratchy("e")))
+			s.save(id, Versioned(Version(1), entity))
 
 			assertNotNull(s.fetch(id)) { e ->
 				assertEquals(Version(1), e.version)
@@ -70,7 +70,7 @@ class SimpleSnapshotStoreTest() : TestCase()  {
 		}
 	}
 
-	fun withStore(t: (SnapshotStore<TestIdentity, TestEntity, TestEvent>) -> Unit) {
+	fun withStore(t: (SnapshotStore<TestIdentity, TestEntity>) -> Unit) {
 		t(TestSnapshotStore())
 	}
 }

@@ -4,33 +4,26 @@ import com.google.gson.ExclusionStrategy
 import com.google.gson.FieldAttributes
 import draig.core.event.Event
 
-abstract class Entity<T : Event>(events: List<T>)   {
-//	{
-//		initialise()
-//		events.forEach { handle(it) }
-//	}
+abstract class Entity<E : Event, S>(events: List<E>)  {
 
-	fun update(events: List<T>) {
-		changeList = arrayListOf<T>()
-		events.forEach { handle(it) }
-	}
+	protected var state: S = events.fold(initialState()) { s, e -> handle(s, e) }
 
-	private var changeList = arrayListOf<T>()
-	val changes: List<T>
-		get() = changeList
-
-	abstract protected fun initialise()
-
-	abstract protected fun handle(event: T)
-
-	protected fun apply(event: T) {
-		handle(event)
-		change(event)
-	}
-
-	private fun change(event: T) {
+	protected fun apply(event: E) {
+		state = handle(state, event)
 		changeList.add(event)
 	}
+
+	fun update(events: List<E>) {
+		changeList = arrayListOf<E>()
+		state = events.fold(state) { s, e -> handle(s, e) }
+	}
+
+	private var changeList = arrayListOf<E>()
+	val changes: List<E>
+		get() = changeList
+
+	abstract protected fun handle(state: S, event: E): S
+	abstract protected fun initialState(): S
 }
 
 class ChangeListExclusionStrategy() : ExclusionStrategy {

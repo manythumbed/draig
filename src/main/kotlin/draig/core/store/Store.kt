@@ -8,12 +8,12 @@ data class Version(val version: Int)	{
 	fun later(other: Version): Boolean = this.version > other.version
 }
 
-data class Stream<T>(val version: Version, val events: List<T>?)
+data class Stream<T>(val version: Version, val contents: List<T>?)
 data class StorageError(val event: Event)
 data class StorageResult(val success: Boolean, val version: Version, val errors: List<StorageError>)
 
-trait Store<I : Identity, T : Event> {
-	fun stream(id: I): Stream<T>
-	fun streamFrom(id: I, version: Version): Stream<T>
-	fun store(id: I, version: Version, events: List<T>): StorageResult
+trait Store<I : Identity, E : Event> {
+	fun stream(id: I): Stream<E>
+	fun streamFrom(id: I, version: Version): Stream<E>
+	fun store(id: I, version: Version, events: List<E>): StorageResult
 }
