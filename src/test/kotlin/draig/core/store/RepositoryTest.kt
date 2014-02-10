@@ -9,8 +9,18 @@ import draig.core.entity.Itchy
 import draig.core.entity.TestEntity
 import draig.core.entity.TestEvent
 import draig.core.store.simple.SimpleEventStore
+import draig.core.store.simple.SimpleSnapshotStore
 
 data class TestIdentity(val identity: Int) : Identity()
+
+class TestSnapshotStore() : SimpleSnapshotStore<TestIdentity, TestEntity>() {
+	override fun fromJson(json: String): TestEntity? {
+		throw UnsupportedOperationException()
+	}
+	override fun toJson(entity: TestEntity): String? {
+		throw UnsupportedOperationException()
+	}
+}
 
 class TestRepository(store: EventStore<TestIdentity, TestEvent>) : SimpleRepository<TestIdentity, TestEvent, TestEntity>(store) {
 	override fun build(events: List<TestEvent>): TestEntity {

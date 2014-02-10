@@ -7,7 +7,7 @@ import draig.core.event.Event
 
 trait Repository<I : Identity, T>  {
 	fun find(id: I): Versioned<T>?
-	fun store(id: I, version: Version, enity: T): StorageResult
+	fun store(id: I, version: Version, entity: T): StorageResult
 }
 
 abstract class SimpleRepository<I : Identity, E : Event, T>(private val store: EventStore<I, E>) : Repository<I, T>  {
@@ -25,4 +25,23 @@ abstract class SimpleRepository<I : Identity, E : Event, T>(private val store: E
 
 	abstract fun build(events: List<E>): T
 	abstract fun extract(entity: T): List<E>
+}
+
+abstract class SimpleRepositoryWithSnapshots<I : Identity, E : Event, T>(private val store: EventStore<I, E>, private val snapshots: SnapshotStore<I, T>) : SimpleRepository<I, E, T>(store)  {
+	override fun find(id: I): Versioned<T>? {
+		val snapshot = snapshots.fetch(id)
+		if (snapshot != null) {
+
+			val stream = store.streamFrom(id, snapshot.version)
+			if (stream.contents != null) {
+				return Versioned(Version(snapshot.version.version + stream.contents.size), buildFromSnapshot(snapshot.entity, stream.contents))
+			}
+
+			return Versioned(snapshot.version, snapshot.entity)
+		}
+
+		return super.find(id)
+	}
+
+	abstract fun buildFromSnapshot(snapshot: T, events: List<E>): T
 }
