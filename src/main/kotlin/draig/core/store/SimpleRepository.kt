@@ -30,17 +30,18 @@ abstract class SimpleRepository<I : Identity, E : Event, T>(private val store: E
 abstract class SimpleRepositoryWithSnapshots<I : Identity, E : Event, T>(private val store: EventStore<I, E>, private val snapshots: SnapshotStore<I, T>) : SimpleRepository<I, E, T>(store)  {
 	override fun find(id: I): Versioned<T>? {
 		val snapshot = snapshots.fetch(id)
-		if (snapshot != null) {
+		when {
+			snapshot != null -> {
 
-			val stream = store.streamFrom(id, snapshot.version)
-			if (stream.contents != null) {
-				return Versioned(Version(snapshot.version.version + stream.contents.size), buildFromSnapshot(snapshot.entity, stream.contents))
+				val stream = store.streamFrom(id, snapshot.version)
+				if (stream.contents != null) {
+					return Versioned(Version(snapshot.version.version + stream.contents.size), buildFromSnapshot(snapshot.entity, stream.contents))
+				}
+
+				return Versioned(snapshot.version, snapshot.entity)
 			}
-
-			return Versioned(snapshot.version, snapshot.entity)
+			else -> return super.find(id)
 		}
-
-		return super.find(id)
 	}
 
 	abstract fun buildFromSnapshot(snapshot: T, events: List<E>): T
