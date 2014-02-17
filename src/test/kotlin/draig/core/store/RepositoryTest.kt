@@ -22,7 +22,7 @@ class TestSnapshotStore() : SimpleSnapshotStore<TestIdentity, TestEntity>() {
 	}
 }
 
-class TestRepository(store: EventStore<TestIdentity, TestEvent>) : SimpleRepository<TestIdentity, TestEvent, TestEntity>(store) {
+class TestRepository(store: EventStore<TestIdentity, TestEvent>) : EventStoreRepository<TestIdentity, TestEvent, TestEntity>(store) {
 	override fun build(events: List<TestEvent>): TestEntity {
 		return TestEntity(events)
 	}
@@ -49,7 +49,7 @@ class RepositoryTest() : TestCase()  {
 		}
 	}
 
-	private fun withRepository(t: (SimpleRepository<TestIdentity, TestEvent, TestEntity>) -> Unit) {
+	private fun withRepository(t: (EventStoreRepository<TestIdentity, TestEvent, TestEntity>) -> Unit) {
 		t(TestRepository(SimpleEventStore("test")))
 	}
 }

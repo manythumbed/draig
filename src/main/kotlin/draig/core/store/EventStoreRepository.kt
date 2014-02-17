@@ -10,7 +10,7 @@ trait Repository<I : Identity, T>  {
 	fun store(id: I, version: Version, entity: T): StorageResult
 }
 
-abstract class SimpleRepository<I : Identity, E : Event, T>(private val store: EventStore<I, E>) : Repository<I, T>  {
+abstract class EventStoreRepository<I : Identity, E : Event, T>(private val store: EventStore<I, E>) : Repository<I, T>  {
 	override fun find(id: I): Versioned<T>? {
 		val stream = store.stream(id)
 		if (stream.contents != null) {
@@ -27,7 +27,7 @@ abstract class SimpleRepository<I : Identity, E : Event, T>(private val store: E
 	abstract fun extract(entity: T): List<E>
 }
 
-abstract class SimpleRepositoryWithSnapshots<I : Identity, E : Event, T>(private val store: EventStore<I, E>, private val snapshots: SnapshotStore<I, T>) : SimpleRepository<I, E, T>(store)  {
+abstract class EventStoreRepositoryWithSnapshots<I : Identity, E : Event, T>(private val store: EventStore<I, E>, private val snapshots: SnapshotStore<I, T>) : EventStoreRepository<I, E, T>(store)  {
 	override fun find(id: I): Versioned<T>? {
 		val snapshot = snapshots.fetch(id)
 		when {
