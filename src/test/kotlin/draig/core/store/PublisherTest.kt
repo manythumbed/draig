@@ -12,8 +12,8 @@ class TestSubscriber(var scratches: Int = 0) : Subscriber  {
 		}
 	}
 }
-class PublisherTest() : TestCase()  {
 
+class PublisherTest() : TestCase()  {
 	fun testListener() {
 		val x = javaClass<Itchy>()
 		println(x)

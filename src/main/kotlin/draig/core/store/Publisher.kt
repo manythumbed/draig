@@ -9,6 +9,7 @@ trait Subscriber  {
 
 trait Publisher  {
 	fun register(key: String, subscriber: Subscriber)
+	fun publish(event: Event)
 }
 
 class SimplePublisher() : Publisher  {
@@ -22,6 +23,15 @@ class SimplePublisher() : Publisher  {
 			}
 			else -> {
 				subscribers.put(key, arrayListOf(subscriber))
+			}
+		}
+	}
+
+	override fun publish(event: Event) {
+		val list = subscribers.get(event.key)
+		if(list != null)	{
+			list.forEach { s ->
+				s.receive(event)
 			}
 		}
 	}
