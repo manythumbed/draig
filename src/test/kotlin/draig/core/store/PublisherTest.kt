@@ -5,25 +5,17 @@ import draig.core.event.Event
 import draig.core.entity.Itchy
 import draig.core.entity.Scratchy
 
-class TestListener(var scratches: Int = 0) : Listener  {
+class TestSubscriber(var scratches: Int = 0) : Subscriber  {
 	override fun receive(event: Event) {
-		when(event)	{
+		when(event) {
 			is Scratchy -> scratches++
 		}
 	}
-
-	override fun canHandle(event: Event): Boolean {
-		return when(event) {
-			is Itchy	-> false
-			is Scratchy -> true
-			else -> false
-		}
-	}
-
 }
-class NotifierTest() : TestCase()  {
+class PublisherTest() : TestCase()  {
 
 	fun testListener() {
-
+		val x = javaClass<Itchy>()
+		println(x)
 	}
 }

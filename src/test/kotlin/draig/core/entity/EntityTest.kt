@@ -5,10 +5,10 @@ import java.util.ArrayList
 import junit.framework.TestCase
 import kotlin.test.assertEquals
 
-abstract class TestEvent() : Event()
+abstract class TestEvent(key: String) : Event(key)
 
-data class Itchy(val message: String) : TestEvent()
-data class Scratchy(val message: String) : TestEvent()
+data class Itchy(val message: String) : TestEvent(javaClass<Itchy>().getName())
+data class Scratchy(val message: String) : TestEvent(javaClass<Itchy>().getName())
 
 class TestEntity(events: List<TestEvent>) : Entity<TestEvent, ArrayList<String>>(events) {
 
