@@ -4,11 +4,16 @@ import draig.core.event.Event
 import java.util.ArrayList
 import junit.framework.TestCase
 import kotlin.test.assertEquals
+import draig.core.event.EventKey
 
-abstract class TestEvent(key: String) : Event(key)
+object EventKeys {
+	val itchy = EventKey(javaClass<Itchy>().getName())
+	val scratchy = EventKey(javaClass<Scratchy>().getName())
+}
+abstract class TestEvent(key: EventKey) : Event(key)
 
-data class Itchy(val message: String) : TestEvent(javaClass<Itchy>().getName())
-data class Scratchy(val message: String) : TestEvent(javaClass<Itchy>().getName())
+data class Itchy(val message: String) : TestEvent(EventKeys.itchy)
+data class Scratchy(val message: String) : TestEvent(EventKeys.scratchy)
 
 class TestEntity(events: List<TestEvent>) : Entity<TestEvent, ArrayList<String>>(events) {
 
