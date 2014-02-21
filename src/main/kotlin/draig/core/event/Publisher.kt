@@ -13,11 +13,24 @@ trait Publisher  {
 }
 
 class SimplePublisher(subscribers: List<Subscriber>) : Publisher  {
-	val subscribers = subscribers.fold(hashMapOf<EventKey, ArrayList<Subscriber>>())	{ m, s ->
+
+	val all = subscribers.fold(arrayListOf<Subscriber>()) { l, s ->
+		registerForAllEvents(s, l)
+	}
+
+	private fun registerForAllEvents(subscriber: Subscriber, list: ArrayList<Subscriber>): ArrayList<Subscriber> {
+		if (subscriber.handles().containsItem(AllEvents)) {
+			list.add(subscriber)
+		}
+
+		return list
+	}
+
+	val subscribers = subscribers.fold(hashMapOf<EventKey, ArrayList<Subscriber>>()) { m, s ->
 		register(s, m)
 	}
 
-	private fun register(subscriber: Subscriber, map: HashMap<EventKey, ArrayList<Subscriber>>): HashMap<EventKey, ArrayList<Subscriber>>	{
+	private fun register(subscriber: Subscriber, map: HashMap<EventKey, ArrayList<Subscriber>>): HashMap<EventKey, ArrayList<Subscriber>> {
 		subscriber.handles().forEach { k ->
 			val list = map.get(k)
 			when {
@@ -30,11 +43,11 @@ class SimplePublisher(subscribers: List<Subscriber>) : Publisher  {
 	}
 
 	override fun publish(event: Event) {
+		all.forEach { it.receive(event) }
+
 		val list = subscribers.get(event.key)
 		if (list != null) {
-			list.forEach { s ->
-				s.receive(event)
-			}
+			list.forEach { it.receive(event) }
 		}
 	}
 
