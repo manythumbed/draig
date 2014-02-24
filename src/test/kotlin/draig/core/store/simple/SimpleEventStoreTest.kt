@@ -14,16 +14,16 @@ class SimpleEventStoreTest() : TestCase()    {
 
 	fun testEmptyStreamForMissingEntity() {
 		withStore { store ->
-			val stream = store.stream(TestIdentity(12))
-
-			assertEquals(Version(0), stream.version)
-			assertNull(stream.contents)
+			assertNotNull(store.stream(TestIdentity(12))) { s ->
+				assertEquals(Version(0), s.version)
+				assertNull(s.payload)
+			}
 		}
 	}
 
 	fun testShouldStoreNewItemWithNoErrors() {
 		withStore { store ->
-			val result = store.store(TestIdentity(12), Version(0), listOf(Itchy("m"), Scratchy("e")))
+			val result = store.store(TestIdentity(12), Version(0).withPayload(listOf(Itchy("m"), Scratchy("e"))))
 
 			assertEquals(true, result.success)
 			assertEquals(Version(2), result.version)
@@ -34,14 +34,13 @@ class SimpleEventStoreTest() : TestCase()    {
 	fun testShouldRetrieveStoredItem() {
 		withStore { store ->
 			val id = TestIdentity(12)
-			store.store(id, Version(0), listOf(Itchy("m"), Scratchy("e")))
+			store.store(id, Version(0).withPayload(listOf(Itchy("m"), Scratchy("e"))))
 
-			val stream = store.stream(id)
-			assertEquals(Version(2), stream.version)
-			assertNotNull(stream.contents)	{ events ->
-				assertEquals(2, events.size)
-				assertEquals(Itchy("m"), events.get(0))
-				assertEquals(Scratchy("e"), events.get(1))
+			assertNotNull(store.stream(id)) { stream ->
+				assertEquals(Version(2), stream.version)
+				assertEquals(2, stream.payload.size)
+				assertEquals(Itchy("m"), stream.payload.get(0))
+				assertEquals(Scratchy("e"), stream.payload.get(1))
 			}
 		}
 	}

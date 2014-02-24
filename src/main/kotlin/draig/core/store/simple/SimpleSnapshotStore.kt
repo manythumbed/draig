@@ -22,12 +22,13 @@ abstract class SimpleSnapshotStore<I: Identity, T>(): JsonSnapshotStore<I, T>()	
 
 		return null
 	}
+
 	override fun fetch(id: I, version: Version): Versioned<T>? {
 		val snapshot = snapshots.get(SnapshotKey(id, version))
 		if (snapshot != null) {
 			val entity = fromJson(snapshot)
 			if (entity != null) {
-				return Versioned(version, entity)
+				return version.withPayload(entity)
 			}
 		}
 		return null
@@ -35,7 +36,7 @@ abstract class SimpleSnapshotStore<I: Identity, T>(): JsonSnapshotStore<I, T>()	
 	override fun latest(id: I): Version? = latest.get(id)
 
 	override fun save(id: I, entity: Versioned<T>): Boolean {
-		val json = toJson(entity.entity)
+		val json = toJson(entity.payload)
 		println("JSON IS " + json)
 		if (json != null) {
 			snapshots.put(SnapshotKey(id, entity.version), json)

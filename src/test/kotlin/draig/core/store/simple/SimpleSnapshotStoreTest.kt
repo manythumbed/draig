@@ -65,7 +65,7 @@ class SimpleSnapshotStoreTest() : TestCase()  {
 
 			assertNotNull(s.fetch(id)) { e ->
 				assertEquals(Version(1), e.version)
-				assertEquals(2, e.entity.count)
+				assertEquals(2, e.payload.count)
 			}
 		}
 	}

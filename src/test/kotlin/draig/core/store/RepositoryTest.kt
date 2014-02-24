@@ -42,7 +42,7 @@ class RepositoryTest() : TestCase()  {
 
 	fun testShouldNotStoreIfNoChanges() {
 		withRepository { r ->
-			val storageResult = r.store(id, Version(0), entity)
+			val storageResult = r.store(id, Version(0).withPayload(entity))
 			assertEquals(false, storageResult.success)
 			assertEquals(Version(0), storageResult.version)
 			assertEquals(true, storageResult.errors.empty)

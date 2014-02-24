@@ -4,54 +4,54 @@ import java.util.HashMap
 import draig.core.Identity
 import draig.core.Version
 import draig.core.event.Event
-import draig.core.store.Stream
 import draig.core.store.EventStore
 import draig.core.store.StorageResult
 import draig.core.store.StorageError
+import draig.core.Versioned
 
 class SimpleEventStore<I : Identity, T : Event>(val stream: String) : EventStore<I, T>   {
 	val backingStore: HashMap<I, List<T>> = hashMapOf()
 
-	override fun stream(id: I): Stream<T> {
+	override fun stream(id: I): Versioned<List<T>>? {
 		val events = backingStore.get(id)
 		if (events != null) {
-			return Stream(Version(events.size()), events)
+			return Versioned(events.size(), events)
 		}
-		return Stream(Version(0), null)
+		return null
 	}
 
-	override fun streamFrom(id: I, version: Version): Stream<T> {
+	override fun streamFrom(id: I, version: Version): Versioned<List<T>>? {
 		val events = backingStore.get(id)
 		if (events != null) {
-			if (events.size() > version.version) return Stream(Version(events.size()), events.subList(version.version, events.size()))
+			if (events.size() > version.version) return Versioned(events.size(), events.subList(version.version, events.size()))
 		}
-		return Stream(Version(0), null)
+		return null
 	}
 
-	override fun store(id: I, version: Version, events: List<T>): StorageResult {
+	override fun store(id: I, events: Versioned<List<T>>): StorageResult {
 		if (backingStore.containsKey(id)) {
 			val stored = backingStore.get(id)
 			if (stored != null) {
-				if (events.isEmpty()) {
+				if (events.payload.isEmpty()) {
 					return StorageResult(false, Version(stored.size()))
 				}
 
-				if (version.version == stored.size()) {
-					backingStore.put(id, stored.plus(events))
-					return StorageResult(true, Version(stored.size() + events.size()))
+				if (events.version.version == stored.size()) {
+					backingStore.put(id, stored.plus(events.payload))
+					return StorageResult(true, Version(stored.size() + events.payload.size()))
 				}
 
-				return StorageResult(false, Version(stored.size()), events.map { StorageError(it) })
+				return StorageResult(false, Version(stored.size()), events.payload.map { StorageError(it) })
 			}
 		}
 
-		if (events.isEmpty()) {
+		if (events.payload.isEmpty()) {
 			return StorageResult(false, Version(0))
 		}
 
-		backingStore.put(id, events)
+		backingStore.put(id, events.payload)
 
-		return StorageResult(true, Version(events.size()), listOf())
+		return StorageResult(true, Version(events.payload.size()), listOf())
 	}
 }
 

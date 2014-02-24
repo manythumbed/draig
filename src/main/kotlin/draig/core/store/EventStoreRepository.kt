@@ -7,20 +7,21 @@ import draig.core.event.Event
 
 trait Repository<I : Identity, T>  {
 	fun find(id: I): Versioned<T>?
-	fun store(id: I, version: Version, entity: T): StorageResult
+	fun store(id: I, entity: Versioned<T>): StorageResult
 }
 
 abstract class EventStoreRepository<I : Identity, E : Event, T>(private val store: EventStore<I, E>) : Repository<I, T>  {
 	override fun find(id: I): Versioned<T>? {
 		val stream = store.stream(id)
-		if (stream.contents != null) {
-			return Versioned(stream.version, build(stream.contents))
+		if (stream != null) {
+			return stream.version.withPayload(build(stream.payload))
 		}
+
 		return null
 	}
 
-	override fun store(id: I, version: Version, entity: T): StorageResult {
-		return store.store(id, version, extract(entity))
+	override fun store(id: I, entity:Versioned<T>): StorageResult {
+		return store.store(id, entity.version.withPayload(extract(entity.payload)))
 	}
 
 	abstract fun build(events: List<E>): T
@@ -34,11 +35,13 @@ abstract class EventStoreRepositoryWithSnapshots<I : Identity, E : Event, T>(pri
 			snapshot != null -> {
 
 				val stream = store.streamFrom(id, snapshot.version)
-				if (stream.contents != null) {
-					return Versioned(Version(snapshot.version.version + stream.contents.size), buildFromSnapshot(snapshot.entity, stream.contents))
+				if (stream != null) {
+					return snapshot.version.increment(stream.payload.size()).withPayload(buildFromSnapshot(snapshot.payload, stream.payload))
+//					return Versioned(Version(snapshot.version.version + stream.payload.size), buildFromSnapshot(snapshot.payload, stream.payload))
 				}
 
-				return Versioned(snapshot.version, snapshot.entity)
+				return snapshot.version.withPayload(snapshot.payload)
+//				return Versioned(snapshot.version, snapshot.payload)
 			}
 			else -> return super.find(id)
 		}
