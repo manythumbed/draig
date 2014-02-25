@@ -15,7 +15,7 @@ class SimpleEventStore<I : Identity, T : Event>(val stream: String) : EventStore
 	override fun stream(id: I): Versioned<List<T>>? {
 		val events = backingStore.get(id)
 		if (events != null) {
-			return Versioned(events.size(), events)
+			return Version(events.size()).withPayload(events)
 		}
 		return null
 	}
@@ -23,7 +23,7 @@ class SimpleEventStore<I : Identity, T : Event>(val stream: String) : EventStore
 	override fun streamFrom(id: I, version: Version): Versioned<List<T>>? {
 		val events = backingStore.get(id)
 		if (events != null) {
-			if (events.size() > version.version) return Versioned(events.size(), events.subList(version.version, events.size()))
+			if (events.size() > version.version) return Version(events.size()).withPayload(events.subList(version.version, events.size()))
 		}
 		return null
 	}
