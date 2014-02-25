@@ -52,8 +52,7 @@ class SimpleSnapshotStoreTest() : TestCase()  {
 
 	fun testSaveSnapshot() {
 		withStore { s ->
-			Versioned<TestEntity>(Version(1), TestEntity(listOf(Itchy("m"))))
-			assertTrue(s.save(TestIdentity(1), Versioned<TestEntity>(Version(1), TestEntity(listOf(Itchy("m"))))))
+			assertTrue(s.save(TestIdentity(1), Version(1).withPayload(TestEntity(listOf(Itchy("m"))))))
 		}
 	}
 
@@ -61,7 +60,7 @@ class SimpleSnapshotStoreTest() : TestCase()  {
 		withStore { s ->
 			val id = TestIdentity(1)
 			val entity = TestEntity(listOf(Itchy("m"), Scratchy("e")))
-			s.save(id, Versioned(Version(1), entity))
+			s.save(id, Version(1).withPayload(entity))
 
 			assertNotNull(s.fetch(id)) { e ->
 				assertEquals(Version(1), e.version)

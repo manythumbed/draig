@@ -14,10 +14,7 @@ class SimpleEventStoreTest() : TestCase()    {
 
 	fun testEmptyStreamForMissingEntity() {
 		withStore { store ->
-			assertNotNull(store.stream(TestIdentity(12))) { s ->
-				assertEquals(Version(0), s.version)
-				assertNull(s.payload)
-			}
+			assertNull(store.stream(TestIdentity(12)))
 		}
 	}
 
@@ -47,8 +44,8 @@ class SimpleEventStoreTest() : TestCase()    {
 
 	fun testShouldProduceErrorResultForConcurrency() {
 		withStore { store ->
-			store.store(TestIdentity(12), Version(0), listOf(Itchy("m"), Scratchy("e")))
-			val result = store.store(TestIdentity(12), Version(1), listOf(Itchy("m"), Scratchy("e")))
+			store.store(TestIdentity(12), Version(0).withPayload(listOf(Itchy("m"), Scratchy("e"))))
+			val result = store.store(TestIdentity(12), Version(1).withPayload(listOf(Itchy("m"), Scratchy("e"))))
 
 			assertEquals(false, result.success)
 			assertEquals(Version(2), result.version)
@@ -58,8 +55,8 @@ class SimpleEventStoreTest() : TestCase()    {
 
 	fun testShouldStoreAdditionalEvents() {
 		withStore { store ->
-			store.store(TestIdentity(12), Version(0), listOf(Itchy("m"), Scratchy("e")))
-			val result = store.store(TestIdentity(12), Version(2), listOf(Itchy("m"), Scratchy("e")))
+			store.store(TestIdentity(12), Version(0).withPayload(listOf(Itchy("m"), Scratchy("e"))))
+			val result = store.store(TestIdentity(12), Version(2).withPayload(listOf(Itchy("m"), Scratchy("e"))))
 
 			assertEquals(true, result.success)
 			assertEquals(Version(4), result.version)
