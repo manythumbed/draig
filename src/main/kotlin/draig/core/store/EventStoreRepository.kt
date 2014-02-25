@@ -10,9 +10,9 @@ trait Repository<I : Identity, T>  {
 	fun store(id: I, entity: Versioned<T>): StorageResult
 }
 
-abstract class EventStoreRepository<I : Identity, E : Event, T>(private val store: EventStore<I, E>) : Repository<I, T>  {
+abstract class EventStoreRepository<I : Identity, E : Event, T>(private val store: EventStore<I, E>, private val key: Key) : Repository<I, T>  {
 	override fun find(id: I): Versioned<T>? {
-		val stream = store.stream(id)
+		val stream = store.stream(id, key)
 		if (stream != null) {
 			return stream.version.withPayload(build(stream.payload))
 		}
@@ -21,27 +21,25 @@ abstract class EventStoreRepository<I : Identity, E : Event, T>(private val stor
 	}
 
 	override fun store(id: I, entity:Versioned<T>): StorageResult {
-		return store.store(id, entity.version.withPayload(extract(entity.payload)))
+		return store.store(id, key, entity.version.withPayload(extract(entity.payload)))
 	}
 
 	abstract fun build(events: List<E>): T
 	abstract fun extract(entity: T): List<E>
 }
 
-abstract class EventStoreRepositoryWithSnapshots<I : Identity, E : Event, T>(private val store: EventStore<I, E>, private val snapshots: SnapshotStore<I, T>) : EventStoreRepository<I, E, T>(store)  {
+abstract class EventStoreRepositoryWithSnapshots<I : Identity, E : Event, T>(private val store: EventStore<I, E>, private val snapshots: SnapshotStore<I, T>, private val key: Key) : EventStoreRepository<I, E, T>(store, key)  {
 	override fun find(id: I): Versioned<T>? {
 		val snapshot = snapshots.fetch(id)
 		when {
 			snapshot != null -> {
 
-				val stream = store.streamFrom(id, snapshot.version)
+				val stream = store.streamFrom(id, snapshot.version, key)
 				if (stream != null) {
 					return snapshot.version.increment(stream.payload.size()).withPayload(buildFromSnapshot(snapshot.payload, stream.payload))
-//					return Versioned(Version(snapshot.version.version + stream.payload.size), buildFromSnapshot(snapshot.payload, stream.payload))
 				}
 
 				return snapshot.version.withPayload(snapshot.payload)
-//				return Versioned(snapshot.version, snapshot.payload)
 			}
 			else -> return super.find(id)
 		}

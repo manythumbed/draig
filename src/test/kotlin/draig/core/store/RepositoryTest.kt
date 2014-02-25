@@ -22,7 +22,7 @@ class TestSnapshotStore() : SimpleSnapshotStore<TestIdentity, TestEntity>() {
 	}
 }
 
-class TestRepository(store: EventStore<TestIdentity, TestEvent>) : EventStoreRepository<TestIdentity, TestEvent, TestEntity>(store) {
+class TestRepository(store: EventStore<TestIdentity, TestEvent>) : EventStoreRepository<TestIdentity, TestEvent, TestEntity>(store, Key("TestKey")) {
 	override fun build(events: List<TestEvent>): TestEntity {
 		return TestEntity(events)
 	}

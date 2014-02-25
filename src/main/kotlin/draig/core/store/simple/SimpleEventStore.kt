@@ -8,11 +8,12 @@ import draig.core.store.EventStore
 import draig.core.store.StorageResult
 import draig.core.store.StorageError
 import draig.core.Versioned
+import draig.core.store.Key
 
 class SimpleEventStore<I : Identity, T : Event>(val stream: String) : EventStore<I, T>   {
 	val backingStore: HashMap<I, List<T>> = hashMapOf()
 
-	override fun stream(id: I): Versioned<List<T>>? {
+	override fun stream(id: I, key: Key): Versioned<List<T>>? {
 		val events = backingStore.get(id)
 		if (events != null) {
 			return Version(events.size()).withPayload(events)
@@ -20,7 +21,7 @@ class SimpleEventStore<I : Identity, T : Event>(val stream: String) : EventStore
 		return null
 	}
 
-	override fun streamFrom(id: I, version: Version): Versioned<List<T>>? {
+	override fun streamFrom(id: I, version: Version, key: Key): Versioned<List<T>>? {
 		val events = backingStore.get(id)
 		if (events != null) {
 			if (events.size() > version.version) return Version(events.size()).withPayload(events.subList(version.version, events.size()))
@@ -28,7 +29,7 @@ class SimpleEventStore<I : Identity, T : Event>(val stream: String) : EventStore
 		return null
 	}
 
-	override fun store(id: I, events: Versioned<List<T>>): StorageResult {
+	override fun store(id: I, key: Key, events: Versioned<List<T>>): StorageResult {
 		if (backingStore.containsKey(id)) {
 			val stored = backingStore.get(id)
 			if (stored != null) {
